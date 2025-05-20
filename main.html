@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #chat {
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 15px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+
+    .user, .bot {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    .user {
+      align-self: flex-end;
+      background-color: #d0ebff;
+      color: #0056b3;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background-color: #e6f4ea;
+      color: #1b5e20;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-area {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      background-color: #00a86b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #007e50;
+    }
+  </style>
+</head>
+<body>
+  <h2>🤖 Simple Chatbot</h2>
+
+  <div id="chat" class="chat-container"></div>
+
+  <div class="input-area">
+    <input type="text" id="message" placeholder="Type your question here..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('message');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chat = document.getElementById('chat');
+      chat.innerHTML += `<div class="user">You: ${message}</div>`;
+      input.value = '';
+
+      const res = await fetch('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+
+
+      const data = await res.json();
+      chat.innerHTML += `<div class="bot">Bot: ${data.reply}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
