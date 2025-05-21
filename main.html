@@ -29,6 +29,8 @@
       padding: 15px;
       overflow-y: auto;
       margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
     }
 
     .user, .bot {
@@ -44,7 +46,6 @@
       background-color: #d0ebff;
       color: #0056b3;
       text-align: right;
-      margin-left: auto;
     }
 
     .bot {
@@ -52,12 +53,6 @@
       background-color: #e6f4ea;
       color: #1b5e20;
       text-align: left;
-      margin-right: auto;
-    }
-
-    .chat-container {
-      display: flex;
-      flex-direction: column;
     }
 
     .input-area {
@@ -103,24 +98,38 @@
   </div>
 
   <script>
+    const input = document.getElementById('message');
+    const chat = document.getElementById('chat');
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
     async function sendMessage() {
-      const input = document.getElementById('message');
       const message = input.value.trim();
       if (!message) return;
 
-      const chat = document.getElementById('chat');
       chat.innerHTML += `<div class="user">You: ${message}</div>`;
+      chat.innerHTML += `<div class="bot" id="typing">Bot: typing...</div>`;
       input.value = '';
+      chat.scrollTop = chat.scrollHeight;
 
-      const res = await fetch('http://localhost:3000/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
+      try {
+        const res = await fetch('http://localhost:3000/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
 
+        const data = await res.json();
+        document.getElementById('typing').remove();
+        chat.innerHTML += `<div class="bot">Bot: ${data.reply}</div>`;
+      } catch (err) {
+        document.getElementById('typing').remove();
+        chat.innerHTML += `<div class="bot">Bot: Sorry, something went wrong.</div>`;
+        console.error(err);
+      }
 
-      const data = await res.json();
-      chat.innerHTML += `<div class="bot">Bot: ${data.reply}</div>`;
       chat.scrollTop = chat.scrollHeight;
     }
   </script>
